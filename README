@@ -26,10 +26,17 @@ reader.js:
     get response and put in new csv file under 'bakp-bkt-223378'
   after finishing move this file to 'backup bucket'
 
-challenges:
-  lamda executes on file upload in s3 Bucket
-  lamda need to know all file names in bucket
-  execute lambda
-
-create data pipeline
-clone pipeline from lambda and run
+On AWS:
+  1. Create S3 buckets
+    a. upload
+    b. backup
+  2. Create Lambda function
+    a. Add node code
+    b. In designer of Lambda, add trigger 'S3'
+        Configure it to trigger on ObjectCreated
+  3. This script has examples of
+    a. Read file from s3 bucket
+    b. Copy file to new bucket
+    c. Delete file from original bucket
+    d. Pass contents of file as a post request to node server on ES2
+    e. A node server which gets post request and sends 3rd column as answer.
