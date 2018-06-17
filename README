@@ -33,7 +33,7 @@ On AWS:
   2. Create Lambda function
     a. Add node code
     b. In designer of Lambda, add trigger 'S3'
-        Configure it to trigger on ObjectCreated
+        Configure it to trigger on ObjectCreated on upload bucket
   3. This script has examples of
     a. Read file from s3 bucket
     b. Copy file to new bucket
