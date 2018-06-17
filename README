@@ -1,0 +1,35 @@
+package dependencies:
+  npm i csv
+  npm i should
+  npm i aws-sdk
+
+create file:
+vi ~/.aws/credentials
+[default]
+aws_access_key_id = your_access_key
+aws_secret_access_key = your_secret_key
+
+User created:
+  csv-upld-bakp-access
+
+Files:
+
+server.js:
+  accepts post request
+  returns str
+
+reader.js:
+  get list of all file names from s3 bucket 'upld-bkt-223378'
+  reads file from s3 bucket
+    read each line
+    send post request
+    get response and put in new csv file under 'bakp-bkt-223378'
+  after finishing move this file to 'backup bucket'
+
+challenges:
+  lamda executes on file upload in s3 Bucket
+  lamda need to know all file names in bucket
+  execute lambda
+
+create data pipeline
+clone pipeline from lambda and run

@@ -1,0 +1,26 @@
+{
+  "name": "csv-reader",
+  "version": "1.0.0",
+  "description": "csv-reader",
+  "main": "reader.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "csv-reader"
+  },
+  "keywords": [
+    "csv",
+    "reader"
+  ],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "aws-sdk": "^2.259.1",
+    "csv": "^3.1.0",
+    "should": "^13.2.1",
+    "uuid": "^3.2.1"
+  }
+}
