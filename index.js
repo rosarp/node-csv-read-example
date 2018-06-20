@@ -71,7 +71,8 @@ function deleteObject(s3, getParams) {
 function sendPostRequest(csvData) {
   var columnParser = parse({delimiter: ','});
 
-  const http_options = { hostname: '127.0.0.1', port: '3000', method: 'post' };
+  //const http_options = { hostname: '127.0.0.1', port: '8080', method: 'post' };
+  const http_options = { hostname: 'ec2-54-88-214-236.compute-1.amazonaws.com', port: '8080', method: 'post' };
 
   var output = [];
   // Use the writable stream api
@@ -79,7 +80,6 @@ function sendPostRequest(csvData) {
     var record = columnParser.read();
     while(record){
       output.push(record);
-      /*
       var post_req = http.request(http_options, function(res) {
         res.setEncoding('utf8');
         res.on('data', function(chunk) {
@@ -88,7 +88,6 @@ function sendPostRequest(csvData) {
       });
       post_req.write(JSON.stringify(record));
       post_req.end();
-      */
       record = columnParser.read();
     }
   });
