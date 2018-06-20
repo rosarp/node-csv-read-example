@@ -1,75 +1,59 @@
-const aws = require('aws-sdk');
+const AWS = require('aws-sdk');
+const http = require('http');
+const parse = require('csv-parse');
 
-const s3 = new aws.S3({ apiVersion: '2006-03-01' });
+const s3 = new AWS.S3();
 
-exports.handler = async (event, context) => {
+exports.handler = function (event, context) {
   return csvProcess(event);
 };
 
-/*
-const event = {
-  "Records": [
-    {
-      "s3": {
-        "object": {
-          "key": "order.csv"
-        },
-        "bucket": {
-          "name": "upld-bkt-223378"
-        }
-      }
-    }
-  ]
+const runLocally = false;
+if (runLocally) {
+  const event = {"Records": [{"s3": {"object": {"key": "order.csv"},"bucket": {"name": "upld-bkt-223378"}}}]};
+  csvProcess(event);
 }
-*/
-
-csvProcess(event);
 
 function csvProcess(event) {
   const bucket = event.Records[0].s3.bucket.name;
   const key = decodeURIComponent(event.Records[0].s3.object.key.replace(/\+/g, ' '));
-  const params = {
-      Bucket: bucket
+  const getParams = {
+      Bucket: bucket,
+      Key: key
   };
 
-  s3.listObjectsV2(params, function(err, data) {
-    if (err) console.log(err, err.stack); // an error occurred
-    else {                                // successful response
-      for (var i = 0; i < data.Contents.length; i++) {
-        console.log(data.Contents[i].Key);
-        var getParams = {
-          Bucket: params.Bucket,
-          Key: data.Contents[i].Key
-        };
-        s3.getObject(getParams, function(err, data) {
-          if (err) console.log(err, err.stack); // an error occurred
-          else {
-            console.log(data.Body.toString());           // successful response
-          }
-        });
-        copyObject(getParams);
-      }
+  s3.getObject(getParams, function(err, data) {
+    if (err) {
+      console.log(err, err.stack);
     }
+    else {
+      // TODO: Reading full csv. Need to read line by line
+      // console.log(data.Body.toString());
+      sendPostRequest(data.Body.toString());
+    }
+    copyObject(s3, getParams);
   });
   return key;
 }
 
-function copyObject(getParams) {
+function copyObject(s3, getParams) {
   var params = {
     Bucket: "bakp-bkt-223378",
-    CopySource: "/upld-bkt-223378/" + getParams.Key,
+    CopySource: "/" + getParams.Bucket + "/" + getParams.Key,
     Key: getParams.Key
  };
  s3.copyObject(params, function(err, data) {
-   if (err) console.log(err, err.stack); // an error occurred
+   if (err) {
+     console.log(err, err.stack);
+   }
    else {
-     console.log(data);           // successful response
-     deleteObject(getParams);
+     console.log(data);
+     deleteObject(s3, getParams);
    }
  });
 }
 
-function deleteObject(getParams) {
+function deleteObject(s3, getParams) {
   var params = {
   Bucket: getParams.Bucket,
   Key: getParams.Key
@@ -82,22 +66,20 @@ function deleteObject(getParams) {
  });
 }
 
-var parse = require('csv-parse');
-var http = require('http');
-
-var http_options = { hostname: '127.0.0.1', port: '3000', method: 'post' };
-
 //require('should');
 
-function sendPostRequest() {
-  var output = [];
-  // Create the parser
-  var parser = parse({delimiter: ':'});
-  // Use the writable stream api
-  parser.on('readable', function(){
-    while(record = parser.read()){
-      output.push(record);
+function sendPostRequest(csvData) {
+  var columnParser = parse({delimiter: ','});
 
+  const http_options = { hostname: '127.0.0.1', port: '3000', method: 'post' };
+
+  var output = [];
+  // Use the writable stream api
+  columnParser.on('readable', function(){
+    var record = columnParser.read();
+    while(record){
+      output.push(record);
+      /*
       var post_req = http.request(http_options, function(res) {
         res.setEncoding('utf8');
         res.on('data', function(chunk) {
@@ -106,22 +88,23 @@ function sendPostRequest() {
       });
       post_req.write(JSON.stringify(record));
       post_req.end();
+      */
+      record = columnParser.read();
     }
   });
   // Catch any error
-  parser.on('error', function(err){
-    console.log(err.message);
+  columnParser.on('error', function(err){
+    console.log('ColumnParser: ' + err.message);
   });
   // When we are done, test that the parsed output matched what expected
-  parser.on('finish', function(){
+  columnParser.on('finish', function(){
     /*output.should.eql([
       [ 'one', 'two', 'three', 'four', 'five' ],
       [ 'ichi', 'ni', 'san', 'shi', 'go' ]
     ]);*/
   });
-  // Now that setup is done, write data to the stream
-  parser.write("one:two:three:four:five\n");
-  parser.write("ichi:ni:san:shi:go\n");
+
+  columnParser.write(csvData);
   // Close the readable stream
-  parser.end();
+  columnParser.end();
 }

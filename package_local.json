@@ -1,0 +1,24 @@
+{
+  "name": "csvReadParseAndMove",
+  "version": "1.0.0",
+  "description": "csv Read Parse And Move",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "csvReadParseAndMove"
+  },
+  "keywords": [
+    "csv",
+    "reader"
+  ],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "aws-sdk": "^2.259.1",
+    "csv-parse": "^2.5.0"
+  }
+}
