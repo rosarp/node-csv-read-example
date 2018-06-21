@@ -13,6 +13,7 @@ const server = http.createServer((req, res) => {
   })
   req.on('end', function(data) {
     if(req.method == 'GET') {
+      console.log('Hello Worl!');
       res.end('Hello World!');
     } else {
       console.log("Body: " + post_data);
@@ -22,5 +23,5 @@ const server = http.createServer((req, res) => {
 });
 
 server.listen(port, hostname, () => {
-  console.log(`Server running at http://${hostname}:${port}/`);
+  console.log('Server running at http://${hostname}:${port}/');
 });

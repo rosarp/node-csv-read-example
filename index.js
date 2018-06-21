@@ -59,14 +59,12 @@ function deleteObject(s3, getParams) {
   Key: getParams.Key
  };
  s3.deleteObject(params, function(err, data) {
-   if (err) console.log(err, err.stack); // an error occurred
+   if (err) console.log(err, err.stack);
    else {
-     console.log(data);           // successful response
+     console.log(data);
    }
  });
 }
-
-//require('should');
 
 function sendPostRequest(csvData) {
   var columnParser = parse({delimiter: ','});
@@ -94,13 +92,6 @@ function sendPostRequest(csvData) {
   // Catch any error
   columnParser.on('error', function(err){
     console.log('ColumnParser: ' + err.message);
-  });
-  // When we are done, test that the parsed output matched what expected
-  columnParser.on('finish', function(){
-    /*output.should.eql([
-      [ 'one', 'two', 'three', 'four', 'five' ],
-      [ 'ichi', 'ni', 'san', 'shi', 'go' ]
-    ]);*/
   });
 
   columnParser.write(csvData);
