@@ -27,16 +27,15 @@ function csvProcess(event) {
       console.log(err, err.stack);
     }
     else {
-      // TODO: Reading full csv. Need to read line by line
       // console.log(data.Body.toString());
-      sendPostRequest(data.Body.toString());
+      sendFileToAPI(data.Body.toString());
     }
-    copyObject(s3, getParams);
+    copyFileFromBucket(s3, getParams);
   });
   return key;
 }
 
-function copyObject(s3, getParams) {
+function copyFileFromBucket(s3, getParams) {
   var params = {
     Bucket: "bakp-bkt-223378",
     CopySource: "/" + getParams.Bucket + "/" + getParams.Key,
@@ -48,12 +47,12 @@ function copyObject(s3, getParams) {
    }
    else {
      console.log(data);
-     deleteObject(s3, getParams);
+     deleteFileFromBucket(s3, getParams);
    }
  });
 }
 
-function deleteObject(s3, getParams) {
+function deleteFileFromBucket(s3, getParams) {
   var params = {
   Bucket: getParams.Bucket,
   Key: getParams.Key
@@ -66,27 +65,26 @@ function deleteObject(s3, getParams) {
  });
 }
 
-function sendPostRequest(csvData) {
+function sendFileToAPI(csvData) {
   var columnParser = parse({delimiter: ','});
 
   //const http_options = { hostname: '127.0.0.1', port: '8080', method: 'post' };
   const http_options = { hostname: 'ec2-54-88-214-236.compute-1.amazonaws.com', port: '8080', method: 'post' };
 
-  var output = [];
   // Use the writable stream api
   columnParser.on('readable', function(){
-    var record = columnParser.read();
-    while(record){
-      output.push(record);
+    var rowRecord = columnParser.read();
+    while(rowRecord){
       var post_req = http.request(http_options, function(res) {
         res.setEncoding('utf8');
         res.on('data', function(chunk) {
           console.log('Response: ' + chunk);
+          // TODO: Log chunk to mongodb
         });
       });
-      post_req.write(JSON.stringify(record));
+      post_req.write(JSON.stringify(rowRecord));
       post_req.end();
-      record = columnParser.read();
+      rowRecord = columnParser.read();
     }
   });
   // Catch any error
